@@ -77,15 +77,18 @@ movies = [
 "category": "Romance"
 }
 ]
-# ex1 
+# ex1
 def above_5_5(movie):
     return movie["imdb"] > 5.5
-print(above_5_5(movies))
+result_ex1 = [above_5_5(movie) for movie in movies]
+print(result_ex1)
 
-# ex 2
+# ex2
 def filter_above_5_5(mlist):
     return [movie for movie in mlist if above_5_5(movie)]
-print(filter_above_5_5(movies))
+
+result_ex2 = filter_above_5_5(movies)
+print(result_ex2)
 
 # ex 3
 def filtercat(mlist, category):
@@ -103,9 +106,10 @@ print(averagescore(movies))
 
 # ex 5
 def averimbdcat(mlist, category):
-    category_movies = filtercat( mlist, category)
-    return averimbdcat (category_movies)
-print(averimbdcat(movies, "Romance"))
+    category_movies = filtercat(mlist, category)
+    return averagescore(category_movies)
+
+print ( averimbdcat(movies, "Romance"))
 
 
 
