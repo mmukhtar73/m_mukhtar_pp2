@@ -1,78 +1,112 @@
-# Task 1
-def grams_to_ounces(grams):
-    ounces = 28.3495231 * grams
-    return ounces
+# Dictionary of movies
 
-# Task 2
-def fahrenheit_to_centigrade(f):
-    celsius = (5 / 9) * (f - 32)
-    return celsius
+movies = [
+{
+"name": "Usual Suspects", 
+"imdb": 7.0,
+"category": "Thriller"
+},
+{
+"name": "Hitman",
+"imdb": 6.3,
+"category": "Action"
+},
+{
+"name": "Dark Knight",
+"imdb": 9.0,
+"category": "Adventure"
+},
+{
+"name": "The Help",
+"imdb": 8.0,
+"category": "Drama"
+},
+{
+"name": "The Choice",
+"imdb": 6.2,
+"category": "Romance"
+},
+{
+"name": "Colonia",
+"imdb": 7.4,
+"category": "Romance"
+},
+{
+"name": "Love",
+"imdb": 6.0,
+"category": "Romance"
+},
+{
+"name": "Bride Wars",
+"imdb": 5.4,
+"category": "Romance"
+},
+{
+"name": "AlphaJet",
+"imdb": 3.2,
+"category": "War"
+},
+{
+"name": "Ringing Crime",
+"imdb": 4.0,
+"category": "Crime"
+},
+{
+"name": "Joking muck",
+"imdb": 7.2,
+"category": "Comedy"
+},
+{
+"name": "What is the name",
+"imdb": 9.2,
+"category": "Suspense"
+},
+{
+"name": "Detective",
+"imdb": 7.0,
+"category": "Suspense"
+},
+{
+"name": "Exam",
+"imdb": 4.2,
+"category": "Thriller"
+},
+{
+"name": "We Two",
+"imdb": 7.2,
+"category": "Romance"
+}
+]
+# ex1 
+def above_5_5(movie):
+    return movie["imdb"] > 5.5
+print(above_5_5(movies))
 
-# Task 3
-def solve(num_heads, num_legs):
-    rabbits = (num_legs - 2 * num_heads) / 2
-    chickens = num_heads - rabbits
-    return int(chickens), int(rabbits)
+# ex 2
+def filter_above_5_5(mlist):
+    return [movie for movie in mlist if above_5_5(movie)]
+print(filter_above_5_5(movies))
 
-# Task 4
-def filter_prime(nums):
-    def is_prime(num):
-        if num < 2:
-            return False
-        for i in range(2, int(num**0.5) + 1):
-            if num % i == 0:
-                return False
-        return True
+# ex 3
+def filtercat(mlist, category):
+    return [movie for movie in mlist if movie["category"] == category]
+print(filtercat(movies, "Romance"))
 
-    return list(filter(lambda x: is_prime(x), nums))
+# ex 4
+def averagescore(mlist):
+    if not mlist:
+        return 0.0
 
-# Task 5
-from itertools import permutations
+    totscore = sum(movie["imdb"] for movie in mlist)
+    return totscore / len(mlist)
+print(averagescore(movies))
 
-def string_permutations(s):
-    perms = [''.join(p) for p in permutations(s)]
-    return perms
+# ex 5
+def averimbdcat(mlist, category):
+    category_movies = filtercat( mlist, category)
+    return averimbdcat (category_movies)
+print(averimbdcat(movies, "Romance"))
 
-# Task 6
-def reverse_words(s):
-    words = s.split()
-    reversed_s = ' '.join(reversed(words))
-    return reversed_s
 
-# Task 7
-def has_33(nums):
-    for i in range(len(nums) - 1):
-        if nums[i] == 3 and nums[i + 1] == 3:
-            return True
-    return False
 
-# Task 8
-def spy_game(nums):
-    for i in range(len(nums) - 2):
-        if nums[i] == 0 and nums[i + 1] == 0 and nums[i + 2] == 7:
-            return True
-    return False
-
-# Task 9
-def volume_of_sphere(radius):
-    volume = (4 / 3) * 3.141592653589793 * (radius ** 3)
-    return volume
-
-# Task 10
-def unique_elements_list(lst):
-    unique_list = []
-    for item in lst:
-        if item not in unique_list:
-            unique_list.append(item)
-    return unique_list
-
-# Task 11
-def is_palindrome(word):
-    reversed_word = word[::-1]
-    return word == reversed_word
-
-# Task 12
-def histogram(lst):
-    for num in lst:
-        print('*' * num)
 
