@@ -1,4 +1,3 @@
-
 import pygame
 import datetime
 
@@ -11,7 +10,7 @@ screen = pygame.display.set_mode((w_sc, h_sc))
 clock = pygame.time.Clock()
 running = True
 
-# center of clock
+# center
 x, y = w_sc/2, h_sc/2
 
 # images

@@ -15,16 +15,15 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-
-    pressed = pygame.key.get_pressed()
-    if pressed[pygame.K_UP] and c_y >= r:
-        c_y -= move
-    if pressed[pygame.K_DOWN] and c_y <= h - r:
-        c_y += move
-    if pressed[pygame.K_LEFT] and c_x >= r:
-        c_x -= move
-    if pressed[pygame.K_RIGHT] and c_x <= w - r:
-        c_x += move
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_UP and c_y >= r:
+                c_y -= move
+            if event.key == pygame.K_DOWN and c_y <= h - r:
+                c_y += move
+            if event.key == pygame.K_LEFT and c_x >= r:
+                c_x -= move
+            if event.key == pygame.K_RIGHT and c_x <= w - r:
+                c_x += move
 
     screen.fill("white")
 
