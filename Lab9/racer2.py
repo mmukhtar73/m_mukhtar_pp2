@@ -11,7 +11,7 @@ pygame.display.set_caption('Street Racer')
 CLOCK = pygame.time.Clock()
 
 # loading background
-background = pygame.image.load('AnimatedStreet.png')
+background = pygame.image.load('Street.jpg')
 
 # loading scores font
 font_small = pygame.font.SysFont("Verdana", 20)
@@ -21,12 +21,11 @@ class Coin(pygame.sprite.Sprite):
     to_next = 0
     RARITY = 10
 
-    def __init__(self, value):
+    def __init__(self):
         super().__init__()
-        self.image = pygame.image.load(f"{value}.png")
+        self.image = pygame.image.load("coin_50px.png")
         self.rect = self.image.get_rect()
         self.rect.midbottom = (random.randint(0, WIDTH), 0)
-        self.value = value
 
     def draw(self, surface):
         surface.blit(self.image, self.rect)
@@ -63,7 +62,7 @@ class Enemy(pygame.sprite.Sprite):
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.image = pygame.image.load('Player.png')
+        self.image = pygame.image.load('Racer.png')
         self.rect = self.image.get_rect()
         self.rect.center = (WIDTH // 2, HEIGHT - self.rect.height // 2 - 20)
 
@@ -88,10 +87,6 @@ def main():
     enemies.add(enemy)
     coins = pygame.sprite.Group()
     score = 0
-    N = 1000
-    weights = (1, 2, 5, 10, 20, 50, 100, 200)
-    fps = 30
-    limit = 500
 
     while running:
         for event in pygame.event.get():
@@ -99,8 +94,8 @@ def main():
                 running = False
 
         # adding coins
-        if Coin.can_add(): coins.add(Coin(random.choice(weights)))
-
+        if Coin.can_add(): coins.add(Coin())
+        
         # deleting coins
         for coin in coins:
             if coin.rect.top < HEIGHT: coin.move()
@@ -113,21 +108,15 @@ def main():
 
         # collision with enemies
         if pygame.sprite.spritecollideany(player, enemies):
-            # print(f"Score: {score}")
             running = False
 
         # coin collection
         for coin in coins:
             if player.rect.colliderect(coin.rect):
-                score += coin.value
                 coins.remove(coin)
                 del coin
+                score += 1
 
-        # increasing speed
-        if score > limit:
-            fps += 5
-            limit += 500
-            print(f"FPS = {fps}")
         score_img = font_small.render(str(score), True, (0, 0, 0))
         score_rect = score_img.get_rect()
         score_rect.topright = (WIDTH - 10, 0)
@@ -140,7 +129,7 @@ def main():
         SCREEN.blit(score_img, score_rect)
 
         pygame.display.update()
-        CLOCK.tick(fps)
+        CLOCK.tick(30)
 
 
 if __name__ == '__main__':

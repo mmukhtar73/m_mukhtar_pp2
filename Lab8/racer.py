@@ -11,7 +11,7 @@ pygame.display.set_caption('Street Racer')
 CLOCK = pygame.time.Clock()
 
 # loading background
-background = pygame.image.load('AnimatedStreet.png')
+background = pygame.image.load('Street.jpg')
 
 # loading scores font
 font_small = pygame.font.SysFont("Verdana", 20)
@@ -62,7 +62,7 @@ class Enemy(pygame.sprite.Sprite):
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.image = pygame.image.load('Player.png')
+        self.image = pygame.image.load('Racer.png')
         self.rect = self.image.get_rect()
         self.rect.center = (WIDTH // 2, HEIGHT - self.rect.height // 2 - 20)
 

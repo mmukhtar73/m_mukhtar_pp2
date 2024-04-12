@@ -1,231 +1,130 @@
-
+import pygame
 import random
 
-import pygame
-
+# Init
 pygame.init()
 
-# make cells fit the screen
-WIDTH = 600
-N_COLUMNS, N_ROWS = 20, 20
-BS = WIDTH // N_COLUMNS
-WIDTH = N_COLUMNS * BS
-HEIGHT = N_ROWS * BS
+# screen
+MAP_WIDTH = 600
+MAP_HEIGHT = 600
+BLOCK_SIZE = 20
+FPS = 5  # fps
 
-SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
+# Col
+WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+DARK_GREEN = (0, 100, 0)  
+BLUE = (0, 0, 255)
+BLACK = (0, 0, 0)
+PURPLE = (128, 0, 128)  
+
+#  fonts
+font = pygame.font.SysFont(None, 25)
+
+#  clock
 clock = pygame.time.Clock()
 
-RED = (255, 0, 0)
-BLACK = (0, 0, 0)
-BLUE = (0, 0, 255)
-GREEN = (0, 255, 0)
-GRAY = (127, 127, 127)
-WHITE = (255, 255, 255)
+#  display
+screen = pygame.display.set_mode((MAP_WIDTH, MAP_HEIGHT))
+pygame.display.set_caption("Snake Game")
 
+# snake
+def draw_snake(snake):
+    for i, segment in enumerate(snake):
+        if i == 0:  # Head
+            pygame.draw.rect(screen, PURPLE, (segment[0], segment[1], BLOCK_SIZE, BLOCK_SIZE))
+        elif i % 2 == 0:  # pattern
+            pygame.draw.rect(screen, GREEN, (segment[0], segment[1], BLOCK_SIZE, BLOCK_SIZE))
+        else:
+            pygame.draw.rect(screen, DARK_GREEN, (segment[0], segment[1], BLOCK_SIZE, BLOCK_SIZE))
 
-YELLOW = (255, 255, 0)
+# food
+def generate_food(snake):
+    while True:
+        food_x = random.randint(1, (MAP_WIDTH - BLOCK_SIZE) // BLOCK_SIZE - 1) * BLOCK_SIZE
+        food_y = random.randint(1, (MAP_HEIGHT - BLOCK_SIZE) // BLOCK_SIZE - 1) * BLOCK_SIZE
+        if (food_x, food_y) not in snake:
+            return food_x, food_y
 
+# border
+def draw_border():
+    pygame.draw.rect(screen, WHITE, (0, 0, MAP_WIDTH, BLOCK_SIZE))
+    pygame.draw.rect(screen, WHITE, (0, 0, BLOCK_SIZE, MAP_HEIGHT))
+    pygame.draw.rect(screen, WHITE, (0, MAP_HEIGHT - BLOCK_SIZE, MAP_WIDTH - BLOCK_SIZE, BLOCK_SIZE))
+    pygame.draw.rect(screen, WHITE, (MAP_WIDTH - BLOCK_SIZE, 0, BLOCK_SIZE, MAP_HEIGHT - BLOCK_SIZE))
 
-class Point:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-
-    @staticmethod
-    def from_px(x, y):
-        return Point(x // BS, y // BS)
-    
-    def to_px(self):
-        return self.x * BS, self.y * BS
-    
-    def __repr__(self):
-        return f"Point({self.x}, {self.y})"
-
-
-class Snake:
-    def __init__(self):
-        start_x = WIDTH // 2
-        start_y = HEIGHT // 2
-        self.body = [
-            Point.from_px(start_x, start_y),
-            Point.from_px(start_x, start_y),
-        ]
-        self.tup = [(body_point.x, body_point.y) for body_point in self.body]
-
-    @property
-    def size(self):
-        return len(self.body)
-
-    def draw(self):
-        head = self.body[0]
-        Grid.color_cell(RED, head)
-    
-        for body_cell in self.body[1:]:
-            Grid.color_cell(BLUE, body_cell)
-
-    def move(self, dx, dy):
-        last_idx = len(self.body) - 1
-
-        # moving body from tail
-        for idx in range(last_idx, 0, -1):
-            self.body[idx].x = self.body[idx - 1].x
-            self.body[idx].y = self.body[idx - 1].y
-
-        # moving head
-        self.body[0].x += dx
-        self.body[0].y += dy
-
-        self.tup = [(body_point.x, body_point.y) for body_point in self.body]
-
-    def check_collision(self, food):
-        if food.x != self.body[0].x:
-            return False
-        if food.y != self.body[0].y:
-            return False
-        return True
-
-
-class Grid:
-    # number of free rows, columns and cells
-    n_columns = N_COLUMNS - 2
-    n_rows = N_ROWS - 2
-    n_cells = n_rows * n_columns
-
-    @staticmethod
-    def color_cell(color, point):
-        pos = point.to_px()
-        cell_rect = pygame.Rect(pos[0], pos[1], BS, BS)
-        pygame.draw.rect(SCREEN, color, cell_rect)
-
-    @classmethod
-    # background and wall
-    def draw_background(cls):
-        SCREEN.fill(GRAY)
-        field_rect = pygame.Rect(BS, BS, cls.n_columns * BS, cls.n_rows * BS)
-        pygame.draw.rect(SCREEN, BLACK, field_rect)
-
-    @staticmethod
-    def draw_lines():
-        # drawing lines
-        for x in range(0, WIDTH, BS):
-            pygame.draw.line(SCREEN, WHITE, (x, 0), (x, HEIGHT))
-        for y in range(0, HEIGHT, BS):
-            pygame.draw.line(SCREEN, WHITE, (0, y), (WIDTH, y))
-
-
-class Food:
-    def __init__(self, snake):
-        location = self.gen_location(snake)
-        self.x = location[0]
-        self.y = location[1]
-
-    @staticmethod
-    def gen_location(snake):
-        # generating position out of free cells
-        n_free = Grid.n_cells - snake.size
-        where_to_place = random.randint(0, n_free)
-    
-        # loop increments
-        free_count = 0
-        food_x, food_y = 1, 1
-        while free_count < where_to_place:
-            # going through columns and rows
-            if food_x >= N_COLUMNS - 2:
-                food_x = 1
-                food_y += 1
-            else: food_x += 1
-            if food_y >= N_ROWS - 2:
-                food_y = 1
-    
-            # counting free cells
-            if (food_x, food_y) not in snake.tup:
-                free_count += 1
-        return food_x, food_y
-
-    def draw(self):
-        Grid.color_cell(GREEN, Point(self.x, self.y))
-
-
-def main():
-    running = True
-    snake = Snake()
-    food = Food(snake)
-
-    font = pygame.font.SysFont("Verdana", 30)
-    
-    level = 1
-    level_surf = font.render(f"Level {level}", True, YELLOW)
-    level_rect = level_surf.get_rect()
-    
+# loop
+def game_loop():
+    snake = [(MAP_WIDTH // 2, MAP_HEIGHT // 2)]
+    dx = BLOCK_SIZE
+    dy = 0
+    food_x, food_y = generate_food(snake)
     score = 0
-    score_surf = font.render(f"Score: {score}", True, YELLOW)
-    score_rect = score_surf.get_rect()
-    score_rect.top = level_rect.bottom
+    level = 1
+    foods_eaten = 0
+    paused = True  # pause
 
-    dx, dy = 0, 0
-    speed = 5
-
-    while running:
-        SCREEN.fill(BLACK)
-
+    while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                running = False
+                pygame.quit()
+                quit()
 
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_UP and dy != 1:
-                    dx, dy = 0, -1
-                elif event.key == pygame.K_DOWN and dy != -1:
-                    dx, dy = 0, +1
-                elif event.key == pygame.K_RIGHT and dx != -1:
-                    dx, dy = 1, 0
-                elif event.key == pygame.K_LEFT and dx != 1:
-                    dx, dy = -1, 0
+                if event.key == pygame.K_SPACE:  # start/pause
+                    paused = not paused
+                elif not paused:
+                    if event.key == pygame.K_LEFT and dx == 0:
+                        dx = -BLOCK_SIZE
+                        dy = 0
+                    elif event.key == pygame.K_RIGHT and dx == 0:
+                        dx = BLOCK_SIZE
+                        dy = 0
+                    elif event.key == pygame.K_UP and dy == 0:
+                        dy = -BLOCK_SIZE
+                        dx = 0
+                    elif event.key == pygame.K_DOWN and dy == 0:
+                        dy = BLOCK_SIZE
+                        dx = 0
 
-        snake.move(dx, dy)
+        if not paused:
+            # Move t
+            new_head = (snake[0][0] + dx, snake[0][1] + dy)
+            snake.insert(0, new_head)
 
-        # # collision with wall
-        if snake.body[0].x * BS < BS or\
-                snake.body[0].y * BS < BS or\
-                snake.body[0].x * BS + BS > WIDTH - BS or\
-                snake.body[0].y * BS + BS > HEIGHT - BS:
-            running = False
+            
+            if (new_head[0] < BLOCK_SIZE or new_head[0] >= MAP_WIDTH - BLOCK_SIZE or
+                new_head[1] < BLOCK_SIZE or new_head[1] >= MAP_HEIGHT - BLOCK_SIZE or
+                new_head in snake[1:]):
+                return score
 
-        # collision with food
-        if snake.check_collision(food):
-            snake.body.append(
-                Point(snake.body[-1].x, snake.body[-1].y)
-            )
-            snake.move(dx, dy)
-            score += 1
-            score_surf = font.render(f"Score: {score}", True, YELLOW)
-            if score % 5 == 0:
-                speed += 5
-                level += 1
-                level_surf = font.render(f"Level {level}", True, YELLOW)
+            # col food
+            if new_head == (food_x, food_y):
+                food_x, food_y = generate_food(snake)
+                score += 1
+                foods_eaten += 1
+                if foods_eaten == 3:
+                    level += 1
+                    foods_eaten = 0
 
-            #changing location of food
-            location = food.gen_location(snake)
-            food.x = location[0]
-            food.y = location[1]
+            else:
+                snake.pop()
 
-        #collision with body
-        starting_state = dx == 0 and dy == 0
-        if snake.tup[0] in snake.tup[1:] and not starting_state:
-            running = False
+        screen.fill(BLUE)
+        draw_border()
+        draw_snake(snake)
+        pygame.draw.rect(screen, RED, (food_x, food_y, BLOCK_SIZE, BLOCK_SIZE))
 
-        Grid.draw_background()
-        snake.draw()
-        food.draw()
-        Grid.draw_lines()
+      
+        score_text = font.render(f"Score: {score}", True, BLACK)
+        level_text = font.render(f"Level: {level}", True, BLACK)
+        screen.blit(score_text, (BLOCK_SIZE, BLOCK_SIZE))
+        screen.blit(level_text, (BLOCK_SIZE, BLOCK_SIZE * 2))
 
-        SCREEN.blit(level_surf, level_rect)
-        SCREEN.blit(score_surf, score_rect)
+        pygame.display.update()
+        clock.tick(FPS)
 
-        if running:
-            pygame.display.flip()
-            clock.tick(speed)
-
-
-if __name__ == '__main__':
-    main()
+# Start 
+final_score = game_loop()
+print(f"Final Score: {final_score}")
